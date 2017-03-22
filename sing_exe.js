@@ -69,7 +69,7 @@ function completeLyric(lyric, cb) {
     },
     json: true
   }, (err, response, body) => {
-    if (err || response.statusCode !== 200) {
+    if (err || response.statusCode !== 200 || !body || !body.items) {
       return cb(err || response.statusCode);
     }
 
@@ -128,6 +128,10 @@ program
       const emoji = _.sample(MUSIC_EMOJI);
 
       completeLyric(lyric, (err, completedLyric) => {
+        if (err) {
+          return console.log(`error: ${err}`);
+        }
+
         const reply = {
           in_reply_to_status_id: tweet.id_str,
           status: `@${tweet.user.screen_name} ${emoji} ${completedLyric} ${emoji}`
