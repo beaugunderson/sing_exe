@@ -18,6 +18,8 @@ const GOOGLE_CUSTOM_SEARCH_ID = '009795440119718122912:juztkwcniwg';
 const SCREEN_NAME = process.env.SCREEN_NAME || 'sing_exe';
 
 const MUSIC_EMOJI = [
+  '💯',
+  '🔥',
   '🎙',
   '🎧',
   '🎶',
