@@ -113,8 +113,12 @@ function completeLyric(lyric, cb) {
     const matches = _.filter(lyrics, line => line.indexOf(bestMatch) !== -1);
     const match = _.sample(matches);
 
+    debug(match);
+
     var index = lyrics.indexOf(match);
     var next;
+
+    debug(index);
 
     if (_.endsWith(match, bestMatch)) {
       next = lyrics[++index];
@@ -126,12 +130,17 @@ function completeLyric(lyric, cb) {
       }
     }
 
+    debug(next);
+
     if (lyrics.length > ++index &&
         (stringSimilarity.compareTwoStrings(lyricLower, next) >= 0.8 ||
          next.length <= 5 ||
          _.random() >= 0.85)) {
       next += `\n${lyrics[index]}`;
     }
+
+    debug(next);
+    debug(clean(next));
 
     cb(err, clean(next));
   });
@@ -189,6 +198,8 @@ program
       'every day is a winding road',
       "i'm a bitch",
       'where is my mind?',
+      // sometimes returns '' because it's the last line
+      'the microwave had no end',
       'when i first met my'
     ];
 
