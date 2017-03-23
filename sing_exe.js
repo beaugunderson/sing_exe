@@ -143,16 +143,15 @@ program
 
     var stream = T.stream('user');
 
-    // Look for tweets where image bots mention us and retweet them
-    stream.on('tweet', (tweet) => {
+    stream.on('tweet', tweet => {
       // Discard tweets where we're not mentioned
       if (!tweet.entities ||
           !_.some(tweet.entities.user_mentions, {screen_name: SCREEN_NAME})) {
         return;
       }
 
-      const lyric = tweet.text
-        .replace(new RegExp('.*@' + SCREEN_NAME + '\\s*', 'i'), '');
+      const lyric = tweet.text.replace(
+        new RegExp('.*@' + SCREEN_NAME + '\\s*', 'i'), '');
 
       const emoji = _.sample(MUSIC_EMOJI);
 
