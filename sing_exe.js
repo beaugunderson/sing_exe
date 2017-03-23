@@ -127,6 +127,7 @@ function completeLyric(lyric, cb) {
 
     if (lyrics.length > ++index &&
         (stringSimilarity.compareTwoStrings(lyricLower, next) >= 0.8 ||
+         next.length <= 5 ||
          _.random() >= 0.85)) {
       next += `\n${lyrics[index]}`;
     }
