@@ -143,7 +143,7 @@ program
 
         const reply = {
           in_reply_to_status_id: tweet.id_str,
-          status: `@${tweet.user.screen_name} ${emoji} ${completedLyric} ${emoji}`
+          status: `@${tweet.user.screen_name} ${emoji} ${completedLyric} ${emoji} https://twitter.com/${tweet.user.screen_name}/status/${tweet.id_str}`
         };
 
         T.post('statuses/update', reply, (updateError, data, response) => {
