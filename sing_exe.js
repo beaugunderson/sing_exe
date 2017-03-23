@@ -50,7 +50,9 @@ function getLyrics(url, cb) {
 }
 
 function clean(lyric) {
-  return (lyric || '' ).replace(/^[:;.,\s]+/, '');
+  return (lyric || '' )
+    .replace(/^[:;.,\s]+/, '')
+    .replace(/[:;,\s]+$/, '');
 }
 
 function getNgrams(lyrics, length) {
