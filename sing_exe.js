@@ -97,7 +97,7 @@ function completeLyric(lyric, cb) {
       } else {
         next = clean(match.slice(match.indexOf(bestMatch) + bestMatch.length).trim());
 
-        if (!next) {
+        if (!next || next.length <= 3) {
           next = lyrics[++index];
         }
       }
