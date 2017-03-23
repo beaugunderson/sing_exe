@@ -1,5 +1,6 @@
 'use strict';
 
+const async = require('async');
 const botUtilities = require('bot-utilities');
 const cheerio = require('cheerio');
 const debug = require('debug')('sing_exe');
@@ -161,28 +162,24 @@ program
   .command('test')
   .description('Test the API')
   .action(() => {
-    completeLyric("ma you're just jealous", (err, completed) => {
-      console.log(err, completed);
-    });
+    var tests = [
+      "ma you're just jealous",
+      'i wanna know what love is',
+      "i'm too sexy for my shirt",
+      'every day is a winding road',
+      "i'm a bitch",
+      'where is my mind?',
+      'when i first met my'
+    ];
 
-    completeLyric('i wanna know what love is', (err, completed) => {
-      console.log(err, completed);
-    });
+    async.eachSeries(tests, (test, cbEach) => {
+      console.log(test);
 
-    completeLyric("i'm too sexy for my shirt", (err, completed) => {
-      console.log(err, completed);
-    });
+      completeLyric(test, (err, completed) => {
+        console.log(err, test, completed);
 
-    completeLyric('every day is a winding road', (err, completed) => {
-      console.log(err, completed);
-    });
-
-    completeLyric("i'm a bitch", (err, completed) => {
-      console.log(err, completed);
-    });
-
-    completeLyric("where is my mind?", (err, completed) => {
-      console.log(err, completed);
+        cbEach();
+      });
     });
   });
 
