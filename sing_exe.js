@@ -43,6 +43,7 @@ function getLyrics(url, cb) {
       .filter(lyric => !lyric.match(/^\[.*\]$/))
       .map(lyric => lyric.replace(/\[[a-z0-9]*\]/gi, ''))
       .map(lyric => lyric.replace(/\s+/g, ' '))
+      .map(lyric => lyric.replace(/[´`]/g, "'"))
       .map(lyric => lyric.trim())
       .map(lyric => lyric.toLowerCase());
 
