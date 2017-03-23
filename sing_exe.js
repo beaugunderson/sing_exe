@@ -63,14 +63,11 @@ function getNgrams(lyrics, length) {
       .map(ngram => _.compact(ngram).join(' '))));
 }
 
-function completeLyric(lyric, cb) {
-  const lyricLower = lyric.toLowerCase();
-  const lyricTokens = lyric.split(/\s+/g);
-
+function lyricRequest(lyric, cb) {
   request.get({
     url: 'https://www.googleapis.com/customsearch/v1',
     qs: {
-      q: lyricLower,
+      q: lyric,
       cx: GOOGLE_CUSTOM_SEARCH_ID,
       key: GOOGLE_API_KEY
     },
@@ -80,39 +77,61 @@ function completeLyric(lyric, cb) {
       return cb(err || response.statusCode);
     }
 
-    getLyrics(body.items[0].link, (lyricsError, lyrics) => {
-      const ngrams = getNgrams(lyrics, lyricTokens.length);
+    getLyrics(body.items[0].link, cb);
+  });
+}
 
-      debug(lyrics);
-      debug(ngrams);
+function lyricSearch(lyric, cb) {
+  // try a quoted search first for more accuracy
+  lyricRequest(`"${lyric}"`, (err, lyrics) => {
+    if (!err && lyrics.length) {
+      return cb(err, lyrics);
+    }
 
-      const bestMatches = stringSimilarity.findBestMatch(lyricLower, ngrams);
-      const bestMatch = bestMatches.bestMatch.target;
+    lyricRequest(lyric, cb);
+  });
+}
 
-      const matches = _.filter(lyrics, line => line.indexOf(bestMatch) !== -1);
-      const match = _.sample(matches);
+function completeLyric(lyric, cb) {
+  const lyricLower = lyric.toLowerCase();
+  const lyricTokens = lyric.split(/\s+/g);
 
-      var index = lyrics.indexOf(match);
-      var next;
+  lyricSearch(lyricLower, (err, lyrics) => {
+    if (err || !lyrics.length) {
+      return cb(err || new Error(`no lyrics returned for ${lyricLower}`));
+    }
 
-      if (_.endsWith(match, bestMatch)) {
+    const ngrams = getNgrams(lyrics, lyricTokens.length);
+
+    debug(lyrics);
+    debug(ngrams);
+
+    const bestMatches = stringSimilarity.findBestMatch(lyricLower, ngrams);
+    const bestMatch = bestMatches.bestMatch.target;
+
+    const matches = _.filter(lyrics, line => line.indexOf(bestMatch) !== -1);
+    const match = _.sample(matches);
+
+    var index = lyrics.indexOf(match);
+    var next;
+
+    if (_.endsWith(match, bestMatch)) {
+      next = lyrics[++index];
+    } else {
+      next = clean(match.slice(match.indexOf(bestMatch) + bestMatch.length).trim());
+
+      if (!next || next.length <= 3) {
         next = lyrics[++index];
-      } else {
-        next = clean(match.slice(match.indexOf(bestMatch) + bestMatch.length).trim());
-
-        if (!next || next.length <= 3) {
-          next = lyrics[++index];
-        }
       }
+    }
 
-      if (lyrics.length > ++index &&
-          (stringSimilarity.compareTwoStrings(lyricLower, next) >= 0.8 ||
-           _.random() >= 0.85)) {
-        next += `\n${lyrics[index]}`;
-      }
+    if (lyrics.length > ++index &&
+        (stringSimilarity.compareTwoStrings(lyricLower, next) >= 0.8 ||
+         _.random() >= 0.85)) {
+      next += `\n${lyrics[index]}`;
+    }
 
-      cb(lyricsError, clean(next));
-    });
+    cb(err, clean(next));
   });
 }
 
