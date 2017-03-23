@@ -2,6 +2,7 @@
 
 const botUtilities = require('bot-utilities');
 const cheerio = require('cheerio');
+const debug = require('debug')('sing_exe');
 const natural = require('natural');
 const program = require('commander');
 const request = require('request');
@@ -79,6 +80,9 @@ function completeLyric(lyric, cb) {
     getLyrics(body.items[0].link, (lyricsError, lyrics) => {
       const ngrams = getNgrams(lyrics, lyricTokens.length);
 
+      debug(lyrics);
+      debug(ngrams);
+
       const bestMatches = stringSimilarity.findBestMatch(lyricLower, ngrams);
       const bestMatch = bestMatches.bestMatch.target;
 
@@ -112,13 +116,13 @@ function completeLyric(lyric, cb) {
 program
   .command('respond')
   .description('Respond to replies')
-  .action(function () {
+  .action(() => {
     var T = new Twit(botUtilities.getTwitterAuthFromEnv());
 
     var stream = T.stream('user');
 
     // Look for tweets where image bots mention us and retweet them
-    stream.on('tweet', function (tweet) {
+    stream.on('tweet', (tweet) => {
       // Discard tweets where we're not mentioned
       if (!tweet.entities ||
           !_.some(tweet.entities.user_mentions, {screen_name: SCREEN_NAME})) {
@@ -151,28 +155,33 @@ program
     });
   });
 
+program
+  .command('test')
+  .description('Test the API')
+  .action(() => {
+    completeLyric("ma you're just jealous", (err, completed) => {
+      console.log(err, completed);
+    });
+
+    completeLyric('i wanna know what love is', (err, completed) => {
+      console.log(err, completed);
+    });
+
+    completeLyric("i'm too sexy for my shirt", (err, completed) => {
+      console.log(err, completed);
+    });
+
+    completeLyric('every day is a winding road', (err, completed) => {
+      console.log(err, completed);
+    });
+
+    completeLyric("i'm a bitch", (err, completed) => {
+      console.log(err, completed);
+    });
+
+    completeLyric("where is my mind?", (err, completed) => {
+      console.log(err, completed);
+    });
+  });
+
 program.parse(process.argv);
-
-// completeLyric("ma you're just jealous", (err, completed) => {
-//   console.log(err, completed);
-// });
-
-// completeLyric('i wanna know what love is', (err, completed) => {
-//   console.log(err, completed);
-// });
-
-// completeLyric("i'm too sexy for my shirt", (err, completed) => {
-//   console.log(err, completed);
-// });
-
-// completeLyric('every day is a winding road', (err, completed) => {
-//   console.log(err, completed);
-// });
-
-// completeLyric("i'm a bitch", (err, completed) => {
-//   console.log(err, completed);
-// });
-
-// completeLyric("isn't it ironic?", (err, completed) => {
-//   console.log(err, completed);
-// });
