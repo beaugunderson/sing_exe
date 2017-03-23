@@ -12,8 +12,8 @@ var _ = require('lodash');
 _.mixin(botUtilities.lodashMixins);
 _.mixin(Twit.prototype, botUtilities.twitMixins);
 
-const GOOGLE_API_KEY = 'AIzaSyBmet61nEarIIZeWuuG0XkS46S6Xa2kHjo';
-const GOOGLE_CUSTOM_SEARCH_ID = '009795440119718122912:juztkwcniwg';
+const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
+const GOOGLE_CUSTOM_SEARCH_ID = process.env.GOOGLE_CUSTOM_SEARCH_ID;
 
 const SCREEN_NAME = process.env.SCREEN_NAME || 'sing_exe';
 
