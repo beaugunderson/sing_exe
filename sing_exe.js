@@ -167,7 +167,7 @@ program
       const emoji = _.sample(MUSIC_EMOJI);
 
       completeLyric(lyric, (err, completedLyric) => {
-        if (err) {
+        if (err || !completedLyric) {
           return console.log(`error: ${err}`);
         }
 
