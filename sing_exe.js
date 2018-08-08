@@ -75,7 +75,7 @@ function lyricRequest(lyric, cb) {
     json: true
   }, (err, response, body) => {
     if (err || response.statusCode !== 200 || !body || !body.items) {
-      return cb(err || response.statusCode);
+      return cb(err || response.statusCode !== 200 ? response.statusCode : null);
     }
 
     getLyrics(body.items[0].link, cb);
@@ -85,7 +85,7 @@ function lyricRequest(lyric, cb) {
 function lyricSearch(lyric, cb) {
   // try a quoted search first for more accuracy
   lyricRequest(`"${lyric}"`, (err, lyrics) => {
-    if (!err && lyrics.length) {
+    if (!err && lyrics && lyrics.length) {
       return cb(err, lyrics);
     }
 
@@ -98,7 +98,7 @@ function completeLyric(lyric, cb) {
   const lyricTokens = lyric.split(/\s+/g);
 
   lyricSearch(lyricLower, (err, lyrics) => {
-    if (err || !lyrics.length) {
+    if (err || !lyrics || !lyrics.length) {
       return cb(err || new Error(`no lyrics returned for ${lyricLower}`));
     }
 
@@ -155,14 +155,29 @@ program
     var stream = T.stream('user');
 
     stream.on('tweet', tweet => {
-      // Discard tweets where we're not mentioned
-      if (!tweet.entities ||
-          !_.some(tweet.entities.user_mentions, {screen_name: SCREEN_NAME})) {
+      if (!tweet.entities) {
         return;
       }
 
-      const lyric = tweet.text.replace(
-        new RegExp('.*@' + SCREEN_NAME + '\\s*', 'i'), '');
+      const screenNames = _.map(tweet.entities.user_mentions, 'screen_name');
+
+      if (screenNames.indexOf(SCREEN_NAME) === -1) {
+        return;
+      }
+
+      debug('screenNames %j', screenNames);
+
+      let lyric = tweet.text;
+
+      debug('lyric "%s"', lyric);
+
+      screenNames.forEach(screenName => {
+        lyric = lyric.replace(new RegExp(`(?=^|\\W)@${screenName}(?=$|\\W)`, 'gi'), '');
+      });
+
+      lyric = lyric.replace(/\s+/g, ' ').trim();
+
+      debug('lyric "%s"', lyric);
 
       const emoji = _.sample(MUSIC_EMOJI);
 
